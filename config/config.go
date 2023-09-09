@@ -7,6 +7,7 @@ import (
 	"net/url"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/Dreamacro/clash/adapter"
 	"github.com/Dreamacro/clash/adapter/outbound"
@@ -36,6 +37,7 @@ type General struct {
 	IPv6           bool         `json:"ipv6"`
 	Interface      string       `json:"-"`
 	RoutingMark    int          `json:"-"`
+	AlivePeriod    int          `json:"keep-alive-period"`
 }
 
 // Controller
@@ -204,6 +206,7 @@ type RawConfig struct {
 	Interface          string       `yaml:"interface-name"`
 	RoutingMark        int          `yaml:"routing-mark"`
 	Tunnels            []Tunnel     `yaml:"tunnels"`
+	AlivePeriod        int          `yaml:"keep-alive-period"`
 
 	ProxyProvider map[string]map[string]any `yaml:"proxy-providers"`
 	Hosts         map[string]string         `yaml:"hosts"`
@@ -328,6 +331,10 @@ func parseGeneral(cfg *RawConfig) (*General, error) {
 		}
 	}
 
+	if cfg.AlivePeriod != 0 {
+		C.KeepAlivePeriod = time.Duration(cfg.AlivePeriod) * time.Second
+	}
+
 	return &General{
 		LegacyInbound: LegacyInbound{
 			Port:        cfg.Port,
@@ -348,6 +355,7 @@ func parseGeneral(cfg *RawConfig) (*General, error) {
 		IPv6:        cfg.IPv6,
 		Interface:   cfg.Interface,
 		RoutingMark: cfg.RoutingMark,
+		AlivePeriod: cfg.AlivePeriod,
 	}, nil
 }
 

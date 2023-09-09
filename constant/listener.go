@@ -5,7 +5,10 @@ import (
 	"net"
 	"net/url"
 	"strconv"
+	"time"
 )
+
+var KeepAlivePeriod = 15 * time.Second
 
 type Listener interface {
 	RawAddress() string
